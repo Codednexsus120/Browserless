@@ -14,11 +14,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Enable built-in Administrator account
+      - name: Configure built-in Administrator
         run: |
-          net user Administrator /active:yes
+          :: Set password for built-in Administrator
           net user Administrator MySecurePassword123!
-          net localgroup Administrators Administrator /add
+          
+          :: Create a new group
+          net localgroup AdminsGroup /add
+          
+          :: Add Administrator to the new group
+          net localgroup AdminsGroup Administrator /add
         shell: cmd
 
       - name: Show current user
@@ -27,7 +32,7 @@ jobs:
           echo "User profile path: %USERPROFILE%"
         shell: cmd
 
-      - name: Try listing Administrator directory
+      - name: List Administrator directory
         run: |
           dir C:\Users\Administrator
         shell: cmd

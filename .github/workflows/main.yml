@@ -23,9 +23,19 @@ jobs:
         shell: bash
         run: |
           url="${{ steps.get_url.outputs.url }}"
-          output="C:/Users/Administrator/Downloads/data.zip"
+          output="${{ github.workspace }}/data.zip"
           echo "Downloading artifact from $url to $output using curl"
           curl -L "$url" -o "$output"
+          echo "File list after curl:"
+          ls -l "${{ github.workspace }}"
+          if [ -f "$output" ]; then
+            echo "Download succeeded, moving to Downloads folder..."
+            mv "$output" "C:/Users/Administrator/Downloads/data.zip"
+            ls -l "C:/Users/Administrator/Downloads/"
+          else
+            echo "Download failed, zip file does not exist."
+            exit 1
+          fi
 
       - name: Unzip downloaded artifact to Administrator Desktop (force)
         if: steps.get_url.outputs.url != ''
@@ -36,7 +46,7 @@ jobs:
           Write-Host "Checking for $output"
           if (Test-Path $output) {
             Write-Host "Found artifact zip at $output"
-            # Ensure target directory exists, clean it up if present
+            # Remove target directory if it already exists to avoid conflicts
             if (Test-Path $targetDir) {
               Write-Host "Removing existing $targetDir"
               Remove-Item $targetDir -Recurse -Force

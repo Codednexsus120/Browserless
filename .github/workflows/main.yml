@@ -12,28 +12,14 @@ jobs:
       - name: Setup latest .NET SDK
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 'latest'
+          dotnet-version: '8.x'
 
-      - name: Check if "data" artifact exists and download to Administrator Desktop
-        shell: pwsh
-        run: |
-          $errorActionPreference = 'SilentlyContinue'
-          $artifactName = "data"
-          $desktopPath = "C:\Users\Administrator\Desktop\data"
-
-          # Create destination folder if it doesn't exist
-          if (-not (Test-Path $desktopPath)) {
-              New-Item -ItemType Directory -Path $desktopPath | Out-Null
-          }
-
-          # Download artifact (if it exists)
-          try {
-            Write-Host "Attempting to download artifact '$artifactName'..."
-            # This will not fail the workflow if the artifact does not exist
-            & "${env:GITHUB_WORKSPACE}\..\actions\download-artifact\dist\download-artifact.js" --name $artifactName --path $desktopPath
-          } catch {
-            Write-Host "Artifact '$artifactName' not found. Skipping download."
-          }
+      - name: Download "data" artifact to Administrator Desktop (skip if not found)
+        uses: actions/download-artifact@v5
+        with:
+          name: data
+          path: C:\Users\Administrator\Desktop\data
+        continue-on-error: true
 
       - name: Init and Tunnel
         run: |

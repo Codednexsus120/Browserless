@@ -14,13 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Enable built-in Administrator account
+        run: |
+          net user Administrator /active:yes
+          net user Administrator MySecurePassword123!
+          net localgroup Administrators Administrator /add
+        shell: cmd
+
       - name: Show current user
         run: |
           whoami
-          echo "User profile path: $env:USERPROFILE"
-        shell: pwsh
+          echo "User profile path: %USERPROFILE%"
+        shell: cmd
 
       - name: Try listing Administrator directory
         run: |
           dir C:\Users\Administrator
-        shell: pwsh
+        shell: cmd

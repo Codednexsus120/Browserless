@@ -9,65 +9,9 @@ jobs:
     timeout-minutes: 360   # Max runtime 6 hours
 
     steps:
-      - name: Get lastest artifact URL from external server (curl)
-        id: get_url
-        shell: bash
-        run: |
-          url_response=$(curl -s "https://azcaptchahh.pythonanywhere.com/geturl")
-          artifact_url=$(echo "$url_response" | python -c "import sys, json; print(json.load(sys.stdin).get('url', ''))")
-          echo "Latest artifact URL: $artifact_url"
-          echo "url=$artifact_url" >> $GITHUB_OUTPUT
-
-      - name: Download previous artifact (if available) using curl
-        if: steps.get_url.outputs.url != ''
-        shell: bash
-        run: |
-          url="${{ steps.get_url.outputs.url }}"
-          output="${{ github.workspace }}/data.zip"
-          echo "Downloading artifact from $url to $output using curl"
-          curl -L "$url" -o "$output"
-          echo "File list after curl:"
-          ls -l "${{ github.workspace }}"
-          if [ -f "$output" ]; then
-            echo "Download succeeded."
-          else
-            echo "Download failed, zip file does not exist."
-            exit 1
-          fi
-
-      - name: Move zip to Administrator Downloads with PowerShell
-        shell: pwsh
-        run: |
-          $src = "${{ github.workspace }}\data.zip"
-          $dst = "C:\Users\Administrator\Downloads\data.zip"
-          if (Test-Path $src) {
-            Write-Host "Moving $src to $dst"
-            Move-Item -Path $src -Destination $dst -Force
-          } else {
-            Write-Host "Source zip not found, cannot move."
-            exit 1
-          }
-
-      - name: Unzip downloaded artifact to Administrator Desktop (force)
-        shell: pwsh
-        run: |
-          $output = "C:\Users\Administrator\Downloads\data.zip"
-          $targetDir = "C:\Users\Administrator\Desktop\data"
-          Write-Host "Checking for $output"
-          if (Test-Path $output) {
-            Write-Host "Found artifact zip at $output"
-            # Remove target directory if it already exists to avoid conflicts
-            if (Test-Path $targetDir) {
-              Write-Host "Removing existing $targetDir"
-              Remove-Item $targetDir -Recurse -Force
-            }
-            New-Item -Path $targetDir -ItemType Directory | Out-Null
-            Expand-Archive -Path $output -DestinationPath $targetDir -Force
-            Remove-Item $output
-            Write-Host "Extraction completed to $targetDir"
-          } else {
-            Write-Host "No artifact zip downloaded; skipping extraction."
-          }
+      - name: Download and move artifact using BAT script
+        shell: cmd
+        run: download_and_move.bat
 
       - name: Init and Tunnel
         run: |

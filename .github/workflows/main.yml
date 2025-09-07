@@ -36,8 +36,20 @@ jobs:
           Write-Host "Checking for $output"
           if (Test-Path $output) {
             Write-Host "Found artifact zip at $output"
+            # Remove target directory if it already exists to avoid conflicts
+            if (Test-Path $targetDir) {
+              Write-Host "Removing existing $targetDir"
+              Remove-Item $targetDir -Recurse -Force
+            }
+            # Create the directory if not exists
+            if (!(Test-Path $targetDir)) {
+              Write-Host "Creating $targetDir"
+              New-Item -Path $targetDir -ItemType Directory | Out-Null
+            }
+            # Unzip the archive
             Expand-Archive -Path $output -DestinationPath $targetDir -Force
             Remove-Item $output
+            Write-Host "Extraction completed to $targetDir"
           } else {
             Write-Host "No artifact zip downloaded; skipping extraction."
           }

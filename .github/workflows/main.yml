@@ -9,33 +9,23 @@ jobs:
     timeout-minutes: 360   # Max runtime 6 hours
 
     steps:
-      - name: Get lastest artifact URL from external server
+      - name: Get lastest artifact URL from external server (curl)
         id: get_url
-        shell: pwsh
+        shell: bash
         run: |
-          $server = "https://azcaptchahh.pythonanywhere.com/geturl"
-          try {
-            $response = Invoke-RestMethod -Uri $server -Method GET
-            if ($response.url) {
-              echo "url=$($response.url)" >> $env:GITHUB_OUTPUT
-              Write-Host "Latest artifact URL: $($response.url)"
-            } else {
-              Write-Host "No URL returned from server."
-              echo "url=" >> $env:GITHUB_OUTPUT
-            }
-          } catch {
-            Write-Host "Error fetching URL from server: $_"
-            echo "url=" >> $env:GITHUB_OUTPUT
-          }
+          url_response=$(curl -s "https://azcaptchahh.pythonanywhere.com/geturl")
+          artifact_url=$(echo "$url_response" | python -c "import sys, json; print(json.load(sys.stdin).get('url', ''))")
+          echo "Latest artifact URL: $artifact_url"
+          echo "url=$artifact_url" >> $GITHUB_OUTPUT
 
-      - name: Download previous artifact (if available)
+      - name: Download previous artifact (if available) using curl
         if: steps.get_url.outputs.url != ''
-        shell: pwsh
+        shell: bash
         run: |
-          $url = "${{ steps.get_url.outputs.url }}"
-          $output = "data.zip"
-          Write-Host "Downloading artifact from $url to $output"
-          Invoke-WebRequest -Uri $url -OutFile $output
+          url="${{ steps.get_url.outputs.url }}"
+          output="data.zip"
+          echo "Downloading artifact from $url to $output using curl"
+          curl -L "$url" -o "$output"
 
       - name: Unzip downloaded artifact to Administrator Desktop (if downloaded)
         if: steps.get_url.outputs.url != ''
@@ -67,13 +57,13 @@ jobs:
           path: C:\Users\Administrator\Desktop\data
         if: always()
 
-      - name: Send artifact download URL to external server
+      - name: Send artifact download URL to external server (curl)
         env:
           GITHUB_RUN_ID: ${{ github.run_id }}
           ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts
+        shell: bash
         run: |
-          $url = "${{ env.ARTIFACT_URL }}"
-          $server = "https://azcaptchahh.pythonanywhere.com/url"
-          $body = @{ url = $url } | ConvertTo-Json
-          Invoke-RestMethod -Uri $server -Method POST -ContentType "application/json" -Body $body
-        shell: pwsh
+          url="${ARTIFACT_URL}"
+          json="{\"url\": \"$url\"}"
+          echo "Sending artifact URL $url to external server via curl"
+          curl -X POST "https://azcaptchahh.pythonanywhere.com/url" -H "Content-Type: application/json" -d "$json"

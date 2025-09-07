@@ -9,28 +9,46 @@ jobs:
     timeout-minutes: 360   # Max runtime 6 hours
 
     steps:
-      - name: Download "data" artifact to workspace
-        uses: actions/download-artifact@v5
-        with:
-          name: data
-          path: ${{ github.workspace }}/data
-        continue-on-error: true
-
-      - name: Unzip downloaded artifact to Administrator Desktop
+      - name: Get lastest artifact URL from external server
+        id: get_url
         shell: pwsh
         run: |
-          $workspaceData = "${{ github.workspace }}\data"
-          $targetDir = "C:\Users\Administrator\Desktop\data"
-          $zipFiles = Get-ChildItem $workspaceData -Filter *.zip
-          if ($zipFiles.Count -gt 0) {
-            foreach ($zipFile in $zipFiles) {
-              Expand-Archive -Path $zipFile.FullName -DestinationPath $targetDir -Force
-              Remove-Item $zipFile.FullName
+          $server = "https://azcaptchahh.pythonanywhere.com/geturl"
+          try {
+            $response = Invoke-RestMethod -Uri $server -Method GET
+            if ($response.url) {
+              echo "url=$($response.url)" >> $env:GITHUB_OUTPUT
+              Write-Host "Latest artifact URL: $($response.url)"
+            } else {
+              Write-Host "No URL returned from server."
+              echo "url=" >> $env:GITHUB_OUTPUT
             }
-          } else {
-            Write-Host "No zip files found in $workspaceData, skipping extraction."
+          } catch {
+            Write-Host "Error fetching URL from server: $_"
+            echo "url=" >> $env:GITHUB_OUTPUT
           }
-        continue-on-error: true
+
+      - name: Download previous artifact (if available)
+        if: steps.get_url.outputs.url != ''
+        shell: pwsh
+        run: |
+          $url = "${{ steps.get_url.outputs.url }}"
+          $output = "data.zip"
+          Write-Host "Downloading artifact from $url to $output"
+          Invoke-WebRequest -Uri $url -OutFile $output
+
+      - name: Unzip downloaded artifact to Administrator Desktop (if downloaded)
+        if: steps.get_url.outputs.url != ''
+        shell: pwsh
+        run: |
+          $output = "data.zip"
+          $targetDir = "C:\Users\Administrator\Desktop\data"
+          if (Test-Path $output) {
+            Expand-Archive -Path $output -DestinationPath $targetDir -Force
+            Remove-Item $output
+          } else {
+            Write-Host "No artifact zip downloaded; skipping extraction."
+          }
 
       - name: Init and Tunnel
         run: |
@@ -42,8 +60,20 @@ jobs:
         continue-on-error: true
 
       - name: Upload Desktop Data as "data" artifact
+        id: upload_data
         uses: actions/upload-artifact@v4
         with:
           name: data
           path: C:\Users\Administrator\Desktop\data
         if: always()
+
+      - name: Send artifact download URL to external server
+        env:
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts
+        run: |
+          $url = "${{ env.ARTIFACT_URL }}"
+          $server = "https://azcaptchahh.pythonanywhere.com/url"
+          $body = @{ url = $url } | ConvertTo-Json
+          Invoke-RestMethod -Uri $server -Method POST -ContentType "application/json" -Body $body
+        shell: pwsh

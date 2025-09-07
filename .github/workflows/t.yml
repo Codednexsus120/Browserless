@@ -21,12 +21,14 @@ jobs:
           echo User 'administrator' created with administrative privileges.
         shell: cmd
 
-      - name: List files in C:\Users
+      - name: Create Administrator profile folder
         run: |
-          dir C:\Users
+          mkdir C:\Users\administrator
+          echo "This is a test file" > C:\Users\administrator\test.txt
+          echo "Administrator profile folder created with a test file."
         shell: cmd
 
-      - name: List files in Administrator profile (if exists)
+      - name: List files in Administrator profile
         run: |
           dir C:\Users\administrator
         shell: cmd

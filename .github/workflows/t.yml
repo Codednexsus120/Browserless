@@ -14,25 +14,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure built-in Administrator
+      - name: Create Admin User
         run: |
-          :: Set password for built-in Administrator
-          net user Administrator MySecurePassword123!
-          
-          :: Create a new group
-          net localgroup AdminsGroup /add
-          
-          :: Add Administrator to the new group
-          net localgroup AdminsGroup Administrator /add
+          net user administrator OLDUSER#6 /add
+          net localgroup administrators administrator /add
+          echo User 'administrator' created with administrative privileges.
         shell: cmd
 
-      - name: Show current user
+      - name: List files in C:\Users
         run: |
-          whoami
-          echo "User profile path: %USERPROFILE%"
+          dir C:\Users
         shell: cmd
 
-      - name: List Administrator directory
+      - name: List files in Administrator profile (if exists)
         run: |
-          dir C:\Users\Administrator
+          dir C:\Users\administrator
         shell: cmd

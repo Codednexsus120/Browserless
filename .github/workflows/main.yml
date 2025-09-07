@@ -6,12 +6,15 @@ on:
 jobs:
   job-alpha:
     runs-on: windows-2022
-    timeout-minutes: 360   # Max runtime 6 hours
+    timeout-minutes: 360
 
     steps:
-      - name: Download and move artifact using BAT script
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Download, move, and unzip artifact
         shell: cmd
-        run: download_and_move.bat
+        run: .\download_move_unzip.bat
 
       - name: Init and Tunnel
         run: |

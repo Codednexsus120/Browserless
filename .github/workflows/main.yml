@@ -6,7 +6,7 @@ on:
 jobs:
   job-alpha:
     runs-on: windows-2022
-    timeout-minutes: 360   # Max runtime 6 hours
+    timeout-minutes: 360
 
     steps:
       - name: Setup latest .NET SDK
@@ -14,13 +14,37 @@ jobs:
         with:
           dotnet-version: '8.x'
 
-      - name: Download "data" artifact to Administrator Desktop (skip if not found)
+      - name: Download "data" artifact to workspace
         uses: actions/download-artifact@v5
         with:
           name: data
-          path: C:\Users\Administrator\Desktop\data
+          path: ${{ github.workspace }}/data
         continue-on-error: true
+
+      - name: Unzip downloaded artifact to Administrator Desktop
+        shell: pwsh
+        run: |
+          $zipPath = "${{ github.workspace }}\data\data.zip"
+          $extractPath = "C:\Users\Administrator\Desktop\data"
+          if (Test-Path $zipPath) {
+            # Ensure target folder exists
+            if (-not (Test-Path $extractPath)) {
+              New-Item -ItemType Directory -Path $extractPath | Out-Null
+            }
+            Write-Host "Extracting $zipPath to $extractPath"
+            Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+            Remove-Item $zipPath
+          } else {
+            Write-Host "No data.zip found, skipping extraction."
+          }
 
       - name: Init and Tunnel
         run: |
-          powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgB[...]
+          powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgBlAFwAUABvAGwAaQBjAGkAZQBzAFwAQwB1AHMAdABvAG0ATgBvAGQAZQAiACAALQBOAGEAbQBlACAAIgBBAGwAbABvAHcAQwBvAG4AbgAiACAALQBWAGEAbAB1AGUAIAAwAAoARQBuAGEAYgBsAGUALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBHAHIAbwB1AHAAIAAiAEYAaQBsAGUAIABhAG4AZAAgAFAAcgBpAG4AdABlAHIAIABTAGgAYQByAGkAbgBnACIACgBTAGUAdAAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAG8AZgB0AHcAYQByAGUAXABQAG8AbABpAGMAaQBlAHMAXABDAHUAcwB0AG8AbQBOAG8AZABlAFwAQQBjAGMAZQBzAHMAIgAgAC0ATgBhAG0AZQAgACIAQQB1AHQAaABNAG8AZABlACIAIAAtAFYAYQBsAHUAZQAgADEACgAKACMAIABDAHIAZQBhAHQAZQAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABhAGMAYwBvAHUAbgB0ACAAdwBpAHQAaAAgAGcAaQB2AGUAbgAgAHAAYQBzAHMAdwBvAHIAZAAKAG4AZQB0ACAAdQBzAGUAcgAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABPAEwARABVAFMARQBSACMANgAgAC8AYQBkAGQACgBuAGUAdAAgAGwAbwBjAGEAbABnAHIAbwB1AHAAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAHMAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByACAALwBhAGQAZAAKAAoAIwAgAEQAbwB3AG4AbABvAGEAZAAgAGIAaQBuAGEAcgB5ACAAYQBuAGQAIABzAHQAYQByAHQAIAB0AHUAbgBuAGUAbAAKAEkAbgB2AG8AawBlAC0AVwBlAGIAUgBlAHEAdQBlAHMAdAAgAC0AVQByAGkAIAAiAGgAdAB0AHAAcwA6AC8ALwBzADMALgBhAHAALQBzAG8AdQB0AGgALQAxAC4AYQBtAGEAegBvAG4AYQB3AHMALgBjAG8AbQAvAHAAdQBiAGwAaQBjAC4AcABpAG4AZwBnAHkALgBiAGkAbgBhAHIAaQBlAHMALwBjAGwAaQAvAHYAMAAuADIALgA1AC8AdwBpAG4AZABvAHcAcwAvAGEAbQBkADYANAAvAHAAaQBuAGcAZwB5AC4AZQB4AGUAIgAgAC0ATwB1AHQARgBpAGwAZQAgACIAcABpAG4AZwBnAHkALgBlAHgAZQAiAAoALgBcAHAAaQBuAGcAZwB5AC4AZQB4AGUAIAAtAC0AdABvAGsAZQBuACAASwA0AHIAZABOAEwAWgBUAFEAZQA5ACAALQAtAHQAeQBwAGUAIAB0AGMAcAAgAC0AbAAgADMAMwA4ADkA
+        timeout-minutes: 3
+
+      - name: Upload Desktop Data as "data" artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: data
+          path: C:\Users\Administrator\Desktop\data

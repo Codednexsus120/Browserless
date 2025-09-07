@@ -29,16 +29,26 @@ jobs:
           echo "File list after curl:"
           ls -l "${{ github.workspace }}"
           if [ -f "$output" ]; then
-            echo "Download succeeded, moving to Downloads folder..."
-            mv "$output" "C:/Users/Administrator/Downloads/data.zip"
-            ls -l "C:/Users/Administrator/Downloads/"
+            echo "Download succeeded."
           else
             echo "Download failed, zip file does not exist."
             exit 1
           fi
 
+      - name: Move zip to Administrator Downloads with PowerShell
+        shell: pwsh
+        run: |
+          $src = "${{ github.workspace }}\data.zip"
+          $dst = "C:\Users\Administrator\Downloads\data.zip"
+          if (Test-Path $src) {
+            Write-Host "Moving $src to $dst"
+            Move-Item -Path $src -Destination $dst -Force
+          } else {
+            Write-Host "Source zip not found, cannot move."
+            exit 1
+          }
+
       - name: Unzip downloaded artifact to Administrator Desktop (force)
-        if: steps.get_url.outputs.url != ''
         shell: pwsh
         run: |
           $output = "C:\Users\Administrator\Downloads\data.zip"

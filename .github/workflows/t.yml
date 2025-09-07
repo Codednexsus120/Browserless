@@ -24,7 +24,7 @@ jobs:
       - name: Get artifact URL
         id: get_url
         run: |
-          python -c "import requests,json; print(json.loads(requests.get('https://azcaptchahh.pythonanywhere.com/geturl').text)['url'])"
+          python -c "import urllib.request, json; print(json.load(urllib.request.urlopen('https://azcaptchahh.pythonanywhere.com/geturl'))['url'])"
         shell: cmd
 
       - name: Download artifact

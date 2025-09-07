@@ -11,12 +11,16 @@ jobs:
     runs-on: windows-2022
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Show current directory
-      - name: Print current working directory
+      - name: Show current user
         run: |
-          Get-Location
-          dir
+          whoami
+          echo "User profile path: $env:USERPROFILE"
+        shell: pwsh
+
+      - name: Try listing Administrator directory
+        run: |
+          dir C:\Users\Administrator
+        shell: pwsh

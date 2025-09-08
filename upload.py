@@ -4,7 +4,6 @@ import os
 import shutil
 import zipfile
 import json
-import requests
 
 # ===== Step 0: Ensure required libraries are installed =====
 required_packages = ["boto3", "requests", "botocore"]
@@ -18,6 +17,7 @@ for package in required_packages:
 
 # ===== Step 1: Import libraries after ensuring installation =====
 import boto3
+import requests
 from botocore.client import Config
 from botocore.exceptions import ClientError
 

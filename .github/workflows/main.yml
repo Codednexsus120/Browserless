@@ -42,6 +42,6 @@ jobs:
 
       # Step 6: Run upload.py to upload folder and send URL (always run)
       - name: Upload Desktop Data via upload.py
-        shell: python
+        shell: cmd
         if: always()
         run: python upload.py

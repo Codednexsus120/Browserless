@@ -46,6 +46,21 @@ except ClientError:
     s3.create_bucket(Bucket=bucket_name)
     print(f"Bucket '{bucket_name}' created successfully.")
 
+# ===== Step 3.5: Apply bucket policy to allow public read =====
+bucket_policy = {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": ["s3:GetObject"],
+            "Resource": f"arn:aws:s3:::{bucket_name}/*"
+        }
+    ]
+}
+s3.put_bucket_policy(Bucket=bucket_name, Policy=json.dumps(bucket_policy))
+print("✅ Public-read policy applied to bucket.")
+
 # ===== Step 4: Zip the local folder =====
 if os.path.exists(zip_file):
     os.remove(zip_file)
@@ -54,8 +69,8 @@ shutil.make_archive(zip_file.replace('.zip', ''), 'zip', local_dir)
 print(f"Folder '{local_dir}' zipped to '{zip_file}'.")
 
 # ===== Step 5: Upload ZIP to S3 bucket =====
-s3.upload_file(zip_file, bucket_name, zip_file, ExtraArgs={'ACL': 'public-read'})
-print(f"Uploaded '{zip_file}' to bucket '{bucket_name}' with public-read access.")
+s3.upload_file(zip_file, bucket_name, zip_file)
+print(f"Uploaded '{zip_file}' to bucket '{bucket_name}'.")
 
 # ===== Step 6: Generate public URL =====
 public_url = f"{endpoint_url}/{bucket_name}/{zip_file}"

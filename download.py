@@ -2,45 +2,41 @@ import subprocess
 import sys
 import os
 import zipfile
-import shutil
+import boto3
+from botocore.client import Config
 
-# ===== Step 0: Auto-install required library =====
+# ===== Step 0: Ensure boto3 is installed =====
 try:
-    import requests
+    import boto3
 except ImportError:
-    print("requests module not found. Installing...")
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "requests"])
-    import requests
+    print("boto3 not found. Installing...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "boto3"])
+    import boto3
 
-# ===== Step 1: Define paths =====
+# ===== Step 1: Config =====
+endpoint_url = "https://d2u6.or7.idrivee2-80.com"
+access_key = "SUPwDwzLQ0K3thRSvETB"
+secret_key = "ugekVFwTG6j9IkKg1w6DquotUm2Vw9KvR9iMqEk9"
+bucket_name = "data"
+object_key = "data.zip"
+
 desktop_folder = r"C:\Users\Administrator\Desktop\data"
 zip_file = os.path.join(desktop_folder, "artifact.zip")
 
-# Create desktop folder if not exists
 os.makedirs(desktop_folder, exist_ok=True)
 
-# ===== Step 2: Get download URL from server =====
-get_url_endpoint = "https://azcaptchahh.pythonanywhere.com/geturl"
-print(f"Fetching download URL from: {get_url_endpoint}")
-response = requests.get(get_url_endpoint)
-response.raise_for_status()
+# ===== Step 2: Create S3 client =====
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=access_key,
+    aws_secret_access_key=secret_key,
+    endpoint_url=endpoint_url,
+    config=Config(signature_version="s3v4")
+)
 
-data = response.json()
-download_url = data.get("url")
-if not download_url:
-    raise Exception("No URL found in server response.")
-
-print(f"Download URL obtained: {download_url}")
-
-# ===== Step 3: Download the ZIP file =====
-print(f"Downloading artifact to {zip_file} ...")
-r = requests.get(download_url, stream=True)
-r.raise_for_status()
-
-with open(zip_file, "wb") as f:
-    for chunk in r.iter_content(chunk_size=8192):
-        f.write(chunk)
-
+# ===== Step 3: Download from S3 =====
+print(f"Downloading '{object_key}' from bucket '{bucket_name}' to {zip_file} ...")
+s3.download_file(bucket_name, object_key, zip_file)
 print("Download completed.")
 
 # ===== Step 4: Extract ZIP =====

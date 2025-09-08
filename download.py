@@ -1,9 +1,4 @@
-import subprocess
-import sys
-import os
-import zipfile
-import boto3
-from botocore.client import Config
+import subprocess, sys, os, zipfile
 
 # ===== Step 0: Ensure boto3 is installed =====
 try:
@@ -12,6 +7,8 @@ except ImportError:
     print("boto3 not found. Installing...")
     subprocess.check_call([sys.executable, "-m", "pip", "install", "boto3"])
     import boto3
+
+from botocore.client import Config
 
 # ===== Step 1: Config =====
 endpoint_url = "https://d2u6.or7.idrivee2-80.com"
@@ -23,6 +20,7 @@ object_key = "data.zip"
 desktop_folder = r"C:\Users\Administrator\Desktop\data"
 zip_file = os.path.join(desktop_folder, "artifact.zip")
 
+# Always create the target folder before anything
 os.makedirs(desktop_folder, exist_ok=True)
 
 # ===== Step 2: Create S3 client =====
@@ -40,6 +38,9 @@ s3.download_file(bucket_name, object_key, zip_file)
 print("Download completed.")
 
 # ===== Step 4: Extract ZIP =====
+print(f"Ensuring path {desktop_folder} exists before extraction ...")
+os.makedirs(desktop_folder, exist_ok=True)
+
 print(f"Extracting ZIP to {desktop_folder} ...")
 with zipfile.ZipFile(zip_file, 'r') as zip_ref:
     zip_ref.extractall(desktop_folder)

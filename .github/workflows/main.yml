@@ -23,7 +23,7 @@ jobs:
 
       # Step 3: Run download.py to fetch & extract data
       - name: Run download.py
-        shell: python
+        shell: cmd
         run: python download.py
         continue-on-error: true
 

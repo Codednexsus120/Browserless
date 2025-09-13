@@ -14,8 +14,24 @@ jobs:
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
               -configure -clientopts -setvnclegacy -vnclegacy yes
           
+          # <= 8 chars max for macOS VNC password
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
-              -configure -clientopts -setvncpw -vncpw mypass
+              -configure -clientopts -setvncpw -vncpw rohit198
+
+      - name: Download Pinggy
+        run: |
+          curl -L -o pinggy https://s3.ap-south-1.amazonaws.com/public.pinggy.binaries/cli/v0.2.5/mac/univ/pinggy
+          chmod +x pinggy
+          ./pinggy -h || true
+
+      - name: Start Pinggy reverse tunnel (VNC, force+tcp)
+        run: |
+          # Run in foreground so logs stream directly into Actions output
+          ./pinggy -p 443 -R0:localhost:5900 \
+            -o StrictHostKeyChecking=no -o ServerAliveInterval=30 \
+            K4rdNLZTQe9+force+tcp@free.pinggy.io
 
       - name: Keep runner alive
-        run: sleep 3600
+        run: |
+          echo "Runner will stay alive for 60 minutes after tunnel step finishes."
+          sleep 3600

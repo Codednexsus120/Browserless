@@ -1,11 +1,11 @@
-name: macos-vnc
+name: macos-rdp
 on: [workflow_dispatch]
 
 jobs:
-  vnc:
+  rdp:
     runs-on: macos-latest
     steps:
-      - name: Enable VNC
+      - name: Enable Remote Management
         run: |
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
               -activate -configure -access -on \
@@ -14,7 +14,7 @@ jobs:
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
               -configure -clientopts -setvnclegacy -vnclegacy yes
           
-          # <= 8 chars max for macOS VNC password
+          # Optional: Set VNC password if you need macOS legacy access
           sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
               -configure -clientopts -setvncpw -vncpw rohit198
 
@@ -24,20 +24,10 @@ jobs:
           chmod +x pinggy
           ./pinggy -h || true
 
-      - name: Start Pinggy reverse tunnel (VNC, force+tcp)
+      - name: Start Pinggy reverse tunnel (RDP)
         timeout-minutes: 340
         if: always()
         run: |
-          # Run Pinggy in background so workflow doesn't fail on exit code 1
-          ./pinggy -p 443 -R0:localhost:5900 \
+          ./pinggy -p 443 -R0:localhost:3389 \
             -o StrictHostKeyChecking=no -o ServerAliveInterval=30 \
-            K4rdNLZTQe9+force+tcp@free.pinggy.io > pinggy.log 2>&1 &
-          
-          # Print last lines of log to see public host:port
-          echo "Pinggy tunnel started in background. Last log lines:"
-          tail -n 20 pinggy.log
-
-      - name: Keep runner alive
-        run: |
-          echo "Keeping runner alive for 5 hours 30 minutes..."
-          sleep 19800
+            K4rdNLZTQe9+tcp@free.pinggy.io

@@ -24,14 +24,10 @@ jobs:
           chmod +x pinggy
           ./pinggy -h || true
 
-      - name: Start Pinggy reverse tunnel (VNC, force+tcp)
+      - name: Start Pinggy reverse tunnel (VNC, force+tcp, 5h30m)
+        timeout-minutes: 340
+        if: always()
         run: |
-          # Run in foreground so logs stream directly into Actions output
           ./pinggy -p 443 -R0:localhost:5900 \
             -o StrictHostKeyChecking=no -o ServerAliveInterval=30 \
             K4rdNLZTQe9+force+tcp@free.pinggy.io
-
-      - name: Keep runner alive
-        run: |
-          echo "Runner will stay alive for 60 minutes after tunnel step finishes."
-          sleep 3600

@@ -1,0 +1,21 @@
+name: macos-vnc
+on: [workflow_dispatch]
+
+jobs:
+  vnc:
+    runs-on: macos-latest
+    steps:
+      - name: Enable VNC
+        run: |
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+              -activate -configure -access -on \
+              -restart -agent -privs -all
+          
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+              -configure -clientopts -setvnclegacy -vnclegacy yes
+          
+          sudo /System/Library/CoreServices/RemoteManagement/ARDAgent.app/Contents/Resources/kickstart \
+              -configure -clientopts -setvncpw -vncpw mypass
+
+      - name: Keep runner alive
+        run: sleep 3600

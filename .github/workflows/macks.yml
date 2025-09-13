@@ -28,6 +28,6 @@ jobs:
         timeout-minutes: 340
         if: always()
         run: |
-          ./pinggy -p 443 -R0:localhost:3389 \
+          ./pinggy -p 443 -R0:localhost:5900 \
             -o StrictHostKeyChecking=no -o ServerAliveInterval=30 \
             K4rdNLZTQe9+tcp@free.pinggy.io

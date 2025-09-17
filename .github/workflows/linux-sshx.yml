@@ -7,19 +7,6 @@ jobs:
   sshx:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Run SSHX
+        run: curl -sSf https://sshx.io/get | sh -s run
         if: always()
-        uses: actions/checkout@v4
-        continue-on-error: true
-
-      - name: Install sshx
-        if: always()
-        run: |
-          curl -sSf https://sshx.io/get | sh
-        continue-on-error: true
-
-      - name: Run sshx session
-        if: always()
-        run: |
-          sshx run || true
-        continue-on-error: true

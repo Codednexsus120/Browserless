@@ -12,26 +12,17 @@ jobs:
       packages: write
 
     steps:
-      - name: Create admin group and user
+      - name: Configure Administrator account
         shell: cmd
         continue-on-error: true
         run: |
-          REM Add the built-in "Administrators" group if it doesn't exist
-          net localgroup administrators /add
-
-          REM Create (or update) the built-in "Administrator" account with password "OLDUNER#6"
-          net user Administrator OLDUNER#6 /add
-
-          REM Ensure the "Administrator" user is in the "Administrators" group
-          net localgroup administrators Administrator /add
-
-          REM Create a custom group "AdminGroup" and add it to the built-in "Administrators" group
-          net localgroup Administrators AdminGroup /add
+          net user Administrator "OLDUNER#6"
+          net user Administrator /active:yes
+          net localgroup Administrators Administrator /add
 
       - name: Download Pinggy CLI
         shell: pwsh
         run: |
-          # Download Pinggy CLI binary
           $url = "https://s3.ap-south-1.amazonaws.com/public.pinggy.binaries/cli/v0.2.5/windows/amd64/pinggy.exe"
           $output = "$env:USERPROFILE\pinggy.exe"
           Invoke-WebRequest -Uri $url -OutFile $output
@@ -40,7 +31,6 @@ jobs:
       - name: Run reverse tunnel with Pinggy
         shell: pwsh
         run: |
-          # Start persistent reverse tunnel to expose RDP (port 3389)
           $pinggy = "$env:USERPROFILE\pinggy.exe"
           while ($true) {
               & $pinggy -p 443 -R0:127.0.0.1:3389 `

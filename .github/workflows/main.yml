@@ -28,17 +28,7 @@ jobs:
       #     net user administrator OLDUSER#6 /add
       #     net localgroup administrators administrator /add
       #     Write-Output "User 'administrator' created with administrative privileges."
-       # run: |
-         # net user administrator OLDUSER#6 /add
-         # net localgroup administrators administrator /add
-        #  echo User 'administrator' created with administrative privileges.
-       # shell: cmd
-
-      # Step 3: Run download.py to fetch & extract data
-     # - name: Run download.py
-      #  shell: cmd
-       # run: python download.py
-        #continue-on-error: true
+       
 
       # Step 4: Init and Tunnel (always run)
       - name: Init and Tunnel

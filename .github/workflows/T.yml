@@ -15,11 +15,14 @@ jobs:
         run: docker run -d --name minecraft-server nhbahi/minecraft-server:latest
 
       - name: Follow Minecraft server logs for 5h 43m
-        timeout-minutes: 350
+        timeout-minutes: 342
         run: docker logs -f minecraft-server
 
       - name: Commit container to image
         run: docker commit minecraft-server nhbahi/minecraft-server:latest
+
+      - name: Log in to Docker Hub
+        run: echo "dckr_pat_hAtx2lXRMOFVTmzQDbDJ_bYIhxI" | docker login --username nhbahi --password-stdin
 
       - name: Push image to Docker Hub
         run: docker push nhbahi/minecraft-server:latest

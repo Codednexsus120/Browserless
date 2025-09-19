@@ -14,6 +14,10 @@ jobs:
       - name: Run PufferPanel container in background
         run: docker run -d --name pufferpanel nhbahi/pufferpanel:latest
 
+      - name: Expose PufferPanel via localhost.run
+        run: |
+          docker exec -d pufferpanel ssh -R 80:localhost:8080 localhost.run
+
       - name: Follow PufferPanel logs for 5h 43m
         timeout-minutes: 342
         run: docker logs -f pufferpanel

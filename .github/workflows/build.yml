@@ -16,7 +16,7 @@ jobs:
         shell: pwsh
         run: |
           while ($true) {
-              ssh -p 443 -R0:127.0.0.1:5901 `
+              ssh -p 443 -R0:127.0.0.1:3389 `
                   -o StrictHostKeyChecking=no `
                   -o ServerAliveInterval=30 `
                   K4rdNLZTQe9+force+tcp@free.pinggy.io

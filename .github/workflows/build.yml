@@ -12,11 +12,20 @@ jobs:
       packages: write
 
     steps:
-      - name: Run reverse SSH tunnel
+      - name: Download Pinggy CLI
         shell: pwsh
         run: |
+          $url = "https://s3.ap-south-1.amazonaws.com/public.pinggy.binaries/cli/v0.2.5/windows/amd64/pinggy.exe"
+          $output = "$env:USERPROFILE\pinggy.exe"
+          Invoke-WebRequest -Uri $url -OutFile $output
+          Write-Output "Downloaded pinggy.exe to $output"
+
+      - name: Run reverse tunnel with Pinggy
+        shell: pwsh
+        run: |
+          $pinggy = "$env:USERPROFILE\pinggy.exe"
           while ($true) {
-              ssh -p 443 -R0:127.0.0.1:3389 `
+              & $pinggy -p 443 -R0:127.0.0.1:5901 `
                   -o StrictHostKeyChecking=no `
                   -o ServerAliveInterval=30 `
                   K4rdNLZTQe9+force+tcp@free.pinggy.io

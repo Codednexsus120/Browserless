@@ -14,8 +14,11 @@ jobs:
       - name: Run PufferPanel container in background
         run: docker run -d -p 8080:8080 --name pufferpanel nhbahi/pufferpanel:latest
 
-      - name: Expose PufferPanel via localhost.run
-        run: ssh -o StrictHostKeyChecking=no -R 80:localhost:8080 localhost.run
+      - name: Install and run Pinggy for port forwarding
+        run: |
+          curl -L -o pinggy https://s3.ap-south-1.amazonaws.com/public.pinggy.binaries/cli/v0.2.5/linux/amd64/pinggy
+          chmod +x pinggy
+          nohup ./pinggy -p 443 -R0:localhost:8080 -L4300:localhost:4300 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 K4rdNLZTQe9+force@free.pinggy.io &
 
       - name: Follow PufferPanel logs for 5h 43m
         timeout-minutes: 342

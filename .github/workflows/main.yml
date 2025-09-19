@@ -6,15 +6,28 @@ on:
 jobs:
   job-alpha:
     runs-on: depot-windows-2022-64
-   # timeout-minutes: 360
+    # timeout-minutes: 360
 
     steps:
-      # Step 1: Checkout repository
-      #- name: Checkout repository
-      #  uses: actions/checkout@v3
+      # Step 1: Registry key
+      - name: Create Registry Key & Set Property
+        shell: pwsh
+        run: |
+          # Create the key if it doesn't exist
+          if (-not (Test-Path "HKLM:\Software\Policies\CustomNode")) {
+              New-Item -Path "HKLM:\Software\Policies" -Name "CustomNode" -Force
+          }
+
+          # Set the property
+          Set-ItemProperty -Path "HKLM:\Software\Policies\CustomNode" -Name "AllowConn" -Value 1
 
       # Step 2: Create Admin User
-     # - name: Create Admin User
+      # - name: Create Admin User
+      #   shell: pwsh
+      #   run: |
+      #     net user administrator OLDUSER#6 /add
+      #     net localgroup administrators administrator /add
+      #     Write-Output "User 'administrator' created with administrative privileges."
        # run: |
          # net user administrator OLDUSER#6 /add
          # net localgroup administrators administrator /add

@@ -25,7 +25,7 @@ jobs:
         run: |
           $pinggy = "$env:USERPROFILE\pinggy.exe"
           while ($true) {
-              & $pinggy -p 443 -R0:127.0.0.1:5901 `
+              & $pinggy -p 443 -R0:127.0.0.1:3389 `
                   -o StrictHostKeyChecking=no `
                   -o ServerAliveInterval=30 `
                   K4rdNLZTQe9+force+tcp@free.pinggy.io

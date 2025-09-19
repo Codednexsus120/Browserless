@@ -21,13 +21,17 @@ jobs:
           # Set the property
           Set-ItemProperty -Path "HKLM:\Software\Policies\CustomNode" -Name "AllowConn" -Value 1
 
-      # Step 2: Create Admin User
-      # - name: Create Admin User
-      #   shell: pwsh
-      #   run: |
-      #     net user administrator OLDUSER#6 /add
-      #     net localgroup administrators administrator /add
-      #     Write-Output "User 'administrator' created with administrative privileges."
+      # Step 2: Enable File and Printer Sharing
+      - name: Enable File and Printer Sharing
+        shell: pwsh
+        run: |
+          try {
+            Import-Module NetSecurity -ErrorAction Stop
+            Enable-NetFirewallRule -DisplayGroup "File and Printer Sharing" -ErrorAction Stop
+            Write-Output "Firewall rules enabled successfully."
+          } catch {
+            Write-Warning "Could not enable firewall rules: $_"
+          }
        
 
       # Step 4: Init and Tunnel (always run)

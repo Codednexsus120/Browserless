@@ -1,1 +1,30 @@
+name: Run Minecraft Server and Commit
 
+on:
+  workflow_dispatch:
+
+jobs:
+  run-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull Minecraft Docker image
+        run: docker pull nhbahi/minecraft-server:latest || true
+
+      - name: Run Minecraft container in background
+        run: docker run -d --name minecraft-server nhbahi/minecraft-server:latest
+
+      - name: Follow Minecraft server logs for 5h 43m
+        timeout-minutes: 350
+        run: docker logs -f minecraft-server
+
+      - name: Commit container to image
+        run: docker commit minecraft-server nhbahi/minecraft-server:latest
+
+      - name: Push image to Docker Hub
+        run: docker push nhbahi/minecraft-server:latest
+
+      - name: Stop and remove container
+        run: |
+          docker stop minecraft-server
+          docker rm minecraft-server

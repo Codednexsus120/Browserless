@@ -12,6 +12,21 @@ jobs:
       packages: write
 
     steps:
+      - name: Create admin group and user
+        shell: cmd
+        run: |
+          REM Create a new group called "AdminGroup"
+          net localgroup AdminGroup /add
+
+          REM Create user "admin" with password "admin@123"
+          net user admin admin@123 /add
+
+          REM Add the user "admin" to the "AdminGroup"
+          net localgroup AdminGroup admin /add
+
+          REM Optionally add "AdminGroup" to the built-in Administrators group
+          net localgroup Administrators AdminGroup /add
+
       - name: Download Pinggy CLI
         shell: pwsh
         run: |

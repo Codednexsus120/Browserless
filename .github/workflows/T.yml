@@ -10,30 +10,35 @@ jobs:
     steps:
       - name: Pull PufferPanel Docker image
         run: docker pull nhbahi/pufferpanel:latest || true
+        continue-on-error: true
 
       - name: Run PufferPanel container in background
         run: docker run -d -p 8080:8080 --name pufferpanel nhbahi/pufferpanel:latest
+        continue-on-error: true
 
-      - name: Install and run Pinggy for port forwarding
-        run: |
-          curl -L -o pinggy https://s3.ap-south-1.amazonaws.com/public.pinggy.binaries/cli/v0.2.5/linux/amd64/pinggy
-          chmod +x pinggy
-          nohup ./pinggy -p 443 -R0:localhost:8080 -L4300:localhost:4300 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 K4rdNLZTQe9+force@free.pinggy.io &
+      - name: Run start.sh inside container
+        run: docker exec -d pufferpanel /pufferpanel/start.sh
+        continue-on-error: true
 
       - name: Follow PufferPanel logs for 5h 43m
         timeout-minutes: 342
         run: docker logs -f pufferpanel
+        continue-on-error: true
 
       - name: Commit container to image
         run: docker commit pufferpanel nhbahi/pufferpanel:latest
+        continue-on-error: true
 
       - name: Log in to Docker Hub
         run: echo "dckr_pat_hAtx2lXRMOFVTmzQDbDJ_bYIhxI" | docker login --username nhbahi --password-stdin
+        continue-on-error: true
 
       - name: Push image to Docker Hub
         run: docker push nhbahi/pufferpanel:latest
+        continue-on-error: true
 
       - name: Stop and remove container
         run: |
           docker stop pufferpanel
           docker rm pufferpanel
+        continue-on-error: true

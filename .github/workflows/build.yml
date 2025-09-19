@@ -12,21 +12,13 @@ jobs:
       packages: write
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Run reverse SSH tunnel as Administrator
+      - name: Run reverse SSH tunnel
         shell: pwsh
         run: |
-          # Start PowerShell as Administrator and run the loop
-          $script = {
-              while ($true) {
-                  ssh -p 443 -R0:127.0.0.1:5901 -o StrictHostKeyChecking=no -o ServerAliveInterval=30 K4rdNLZTQe9+force+tcp@free.pinggy.io
-                  Start-Sleep -Seconds 10
-              }
+          while ($true) {
+              ssh -p 443 -R0:127.0.0.1:5901 `
+                  -o StrictHostKeyChecking=no `
+                  -o ServerAliveInterval=30 `
+                  K4rdNLZTQe9+force+tcp@free.pinggy.io
+              Start-Sleep -Seconds 10
           }
-
-          # Use Start-Process to run as Administrator
-          Start-Process pwsh -ArgumentList "-NoProfile -Command & { $($script) }" -Verb RunAs
-
-

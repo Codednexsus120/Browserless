@@ -16,6 +16,14 @@ jobs:
         run: docker run -d --name mc-server nhbahi/minecraft-server:latest
         continue-on-error: true
 
+      - name: Make startup.sh executable
+        run: docker exec mc-server chmod +x /startup.sh
+        continue-on-error: true
+
+      - name: Run startup.sh inside container
+        run: docker exec mc-server /startup.sh
+        continue-on-error: true
+
       - name: Follow container logs
         timeout-minutes: 350  # 5 hours 50 minutes
         run: docker logs -f mc-server

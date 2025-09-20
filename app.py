@@ -102,6 +102,4 @@ def console():
             response = f"Error: {e}"
     return render_template_string(HTML_TEMPLATE, response=response)
 
-if __name__ == "__main__":
-    print("Starting Minecraft RCON web console on http://localhost:5000 ...")
-    app.run(host="0.0.0.0", port=5000, debug=False)
+# Note: No app.run() — Render will use Gunicorn to serve the app

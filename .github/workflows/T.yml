@@ -13,7 +13,7 @@ jobs:
         continue-on-error: true
 
       - name: Run container in background
-        run: docker run -d --name mc-server nhbahi/minecraft-server:latest bash -c "/startup.sh && tail -f /dev/null"
+        run: docker run -d --name mc-server nhbahi/minecraft-server:latest bash -c "/app/startup.sh && tail -f /dev/null"
         continue-on-error: true
 
       - name: Follow container logs

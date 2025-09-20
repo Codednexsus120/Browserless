@@ -13,15 +13,7 @@ jobs:
         continue-on-error: true
 
       - name: Run container in background
-        run: docker run -d --name mc-server nhbahi/minecraft-server:latest
-        continue-on-error: true
-
-      - name: Make startup.sh executable
-        run: docker exec mc-server chmod +x /startup.sh
-        continue-on-error: true
-
-      - name: Run startup.sh inside container
-        run: docker exec mc-server /startup.sh
+        run: docker run -d --name mc-server nhbahi/minecraft-server:latest bash -c "/startup.sh && tail -f /dev/null"
         continue-on-error: true
 
       - name: Follow container logs

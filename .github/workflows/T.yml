@@ -16,8 +16,12 @@ jobs:
         run: docker run -d -p 8080:8080 --name pufferpanel nhbahi/pufferpanel:latest
         continue-on-error: true
 
+      - name: chmod inside container
+        run: docker exec pufferpanel bash -c "chmod +x /pufferpanel/start.sh"
+        continue-on-error: true
+
       - name: Run start.sh inside container
-        run: docker exec pufferpanel bash -c "chmod +x /pufferpanel/start.sh && /pufferpanel/start.sh"
+        run: docker exec pufferpanel bash -c "/pufferpanel/start.sh"
         continue-on-error: true
 
       - name: Follow PufferPanel logs for 5h 43m

@@ -21,16 +21,22 @@ jobs:
         run: docker logs -f mc-server
         continue-on-error: true
 
+      - name: Stop container
+        run: docker stop mc-server
+        continue-on-error: true
+
       - name: Commit container to image
         run: docker commit mc-server nhbahi/minecraft-server:latest
         continue-on-error: true
 
       - name: Log in to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login --username nhbahi --password-stdin
+        run: echo "dckr_pat_hAtx2lXRMOFVTmzQDbDJ_bYIhxI" | docker login --username nhbahi --password-stdin
         continue-on-error: true
 
       - name: Push image to Docker Hub
         run: docker push nhbahi/minecraft-server:latest
         continue-on-error: true
 
-      -
+      - name: Remove container
+        run: docker rm mc-server
+        continue-on-error: true

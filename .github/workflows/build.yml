@@ -1,4 +1,4 @@
-name: Windows with Depot Build
+name: Windows with Depot Build + Cache
 
 on:
   workflow_dispatch:
@@ -12,6 +12,7 @@ jobs:
       packages: write
 
     steps:
+      # Step 1: Configure Administrator account
       - name: Configure Administrator account
         shell: cmd
         continue-on-error: true
@@ -20,6 +21,17 @@ jobs:
           net user Administrator /active:yes
           net localgroup Administrators Administrator /add
 
+      # Step 2: Restore/Load Cache Data folder (after step 1)
+      - name: Restore Data folder cache
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: C:\Users\Administrator\Desktop\Data
+          key: ${{ runner.os }}-admin-desktop-data
+          restore-keys: |
+            ${{ runner.os }}-admin-desktop-data
+
+      # Step 3: Download Pinggy CLI
       - name: Download Pinggy CLI
         shell: pwsh
         run: |
@@ -28,8 +40,10 @@ jobs:
           Invoke-WebRequest -Uri $url -OutFile $output
           Write-Output "Downloaded pinggy.exe to $output"
 
+      # Step 4: Run reverse tunnel with Pinggy (timeout 5h 45m)
       - name: Run reverse tunnel with Pinggy
         shell: pwsh
+        timeout-minutes: 345
         run: |
           $pinggy = "$env:USERPROFILE\pinggy.exe"
           while ($true) {
@@ -39,3 +53,11 @@ jobs:
                   K4rdNLZTQe9+force+tcp@free.pinggy.io
               Start-Sleep -Seconds 10
           }
+
+      # Step 5: Save Data folder cache
+      - name: Save Data folder cache
+        uses: actions/cache@v4
+        continue-on-error: true
+        with:
+          path: C:\Users\Administrator\Desktop\Data
+          key: ${{ runner.os }}-admin-desktop-data

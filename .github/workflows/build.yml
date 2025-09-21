@@ -34,6 +34,7 @@ jobs:
       # Step 3: Download Pinggy CLI
       - name: Download Pinggy CLI
         shell: pwsh
+        continue-on-error: true
         run: |
           $url = "https://s3.ap-south-1.amazonaws.com/public.pinggy.binaries/cli/v0.2.5/windows/amd64/pinggy.exe"
           $output = "$env:USERPROFILE\pinggy.exe"
@@ -44,6 +45,7 @@ jobs:
       - name: Run reverse tunnel with Pinggy
         shell: pwsh
         timeout-minutes: 345
+        continue-on-error: true
         run: |
           $pinggy = "$env:USERPROFILE\pinggy.exe"
           while ($true) {

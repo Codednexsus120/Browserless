@@ -29,7 +29,6 @@ jobs:
           path: C:\Users\Administrator\Desktop\Data
           key: ${{ runner.os }}-admin-desktop-data-${{ github.run_number }}
           restore-keys: |
-            ${{ runner.os }}-admin-desktop-data-${{ github.run_number }}-1
             ${{ runner.os }}-admin-desktop-data-
 
       # Step 3: Download Pinggy CLI

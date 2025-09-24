@@ -44,7 +44,7 @@ jobs:
       # Step 4: Run reverse tunnel with Pinggy (timeout 5h 45m)
       - name: Run reverse tunnel with Pinggy
         shell: pwsh
-        timeout-minutes: 345
+        timeout-minutes: 3. #340
         continue-on-error: true
         run: |
           $pinggy = "$env:USERPROFILE\pinggy.exe"

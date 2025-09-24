@@ -21,15 +21,16 @@ jobs:
           net user Administrator /active:yes
           net localgroup Administrators Administrator /add
 
-      # Step 2: Restore/Load Cache Data folder (after step 1)
+      # Step 2: Restore Data folder cache
       - name: Restore Data folder cache
         uses: actions/cache@v4
         continue-on-error: true
         with:
           path: C:\Users\Administrator\Desktop\Data
-          key: ${{ runner.os }}-admin-desktop-data
+          key: ${{ runner.os }}-admin-desktop-data-${{ github.run_number }}
           restore-keys: |
-            ${{ runner.os }}-admin-desktop-data
+            ${{ runner.os }}-admin-desktop-data-${{ github.run_number }}-1
+            ${{ runner.os }}-admin-desktop-data-
 
       # Step 3: Download Pinggy CLI
       - name: Download Pinggy CLI
@@ -62,4 +63,4 @@ jobs:
         continue-on-error: true
         with:
           path: C:\Users\Administrator\Desktop\Data
-          key: ${{ runner.os }}-admin-desktop-data
+          key: ${{ runner.os }}-admin-desktop-data-${{ github.run_number }}
